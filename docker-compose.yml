@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+    # list our services here
+    app:
+        build:
+            context: .
+        ports:
+            - "8000:8000"
+        volumes: # allows any updates we make to our project into our docker image in real time
+            - ./app:/app
+        command: >
+            sh -c "python manage.py runserver 0.0.0.0:8000"
