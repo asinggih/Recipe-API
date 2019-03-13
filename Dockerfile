@@ -1,5 +1,5 @@
 FROM python:3.7.2-alpine
-MAINTAINER asinggih
+LABEL maintainer=asinggih
 
 ENV PYTHONUNBUFFERED 1
 
