@@ -2,6 +2,8 @@ version: "3.7"
 
 services:
     # list our services here
+
+    # Our app service
     app:
         build:
             context: .
@@ -10,4 +12,25 @@ services:
         volumes: # allows any updates we make to our project into our docker image in real time
             - ./app:/app
         command: >
-            sh -c "python manage.py runserver 0.0.0.0:8000"
+            sh -c "python manage.py wait_for_db && 
+                   python manage.py migrate &&
+                   python manage.py runserver 0.0.0.0:8000"
+        environment:
+            # service name of the db, db name, db username, db pass
+            - DB_HOST=db
+            - DB_NAME=app
+            - DB_USER=postgres
+            - DB_PASS=shouldnotusethisinprod
+        depends_on:
+            - db
+
+    # Our db service
+    db:
+        image: postgres:11-alpine
+        environment:
+            # Name of the db
+            - POSTGRES_DB=app
+            # User of the db
+            - POSTGRES_USER=postgres
+            # Password of the db
+            - POSTGRES_PASSWORD=shouldnotusethisinprod

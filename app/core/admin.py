@@ -9,6 +9,7 @@ from . import models
 
 
 class UserAdmin(BaseUserAdmin):
+    # Items requried when EDITING a user
     ordering = ['id']
     list_display = ['email', 'name']
     fieldsets = (
@@ -37,6 +38,7 @@ class UserAdmin(BaseUserAdmin):
         })
     )
 
+    # Fieldsets required when ADDING a new user
     add_fieldsets = (
         (None, {
             "classes": (
