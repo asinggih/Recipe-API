@@ -30,6 +30,26 @@ class UserSerializer(serializers.ModelSerializer):
 
         return get_user_model().objects.create_user(**validated_data)
 
+    # overriding the update function of ModelSerializer
+    # instance is the user object that is linked to the serializer
+    def update(self, instance, validated_data):
+        """Update a user, setting the password correctly and return it"""
+
+        # if the key of password does not exist within our validated data,
+        # we provide a default value of None
+        password = validated_data.pop('password', None)
+        # calling the default update function from the
+        # ModelSerializer superclass, and update that particular object
+        user = super().update(instance, validated_data)
+
+        # if the user provided a password, we update it with
+        # that pssword
+        if password:
+            user.set_password(password)
+            user.save()
+
+        return user
+
 
 class AuthTokenSerializer(serializers.Serializer):
     """Serializer for the user authentication object"""
