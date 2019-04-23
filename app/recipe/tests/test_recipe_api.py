@@ -7,11 +7,34 @@ from rest_framework.test import APIClient
 # human readable status codes
 from rest_framework import status
 
-from core.models import Recipe
-from recipe.serializers import RecipeSerializer
+from core.models import Recipe, Tag, Ingredient
+from recipe.serializers import RecipeSerializer, RecipeDetailSerializer
 
 
+# /api/recipe/recipes
 RECIPES_URL = reverse("recipe:recipe-list")
+
+# /api/recipe/recipes/1/
+
+
+def detail_url(recipe_id):
+    """Return recipe detail URL"""
+
+    # name of the endpoint that the default router
+    # will create for our viewset
+    return reverse("recipe:recipe-detail", args=[recipe_id])
+
+
+def sample_tag(user, name="Main Course"):
+    """create and return a sample tag"""
+
+    return Tag.objects.create(user=user, name=name)
+
+
+def sample_ingredient(user, name="Parsley"):
+    """create and return a sample ingredeint"""
+
+    return Ingredient.objects.create(user=user, name=name)
 
 
 def sample_recipe(user, **params):
@@ -87,9 +110,26 @@ class AuthenticatedRecipeApiTest(TestCase):
         # filter recipe by authenticated users
         recipes = Recipe.objects.filter(user=self.user)
         # even though we will only get one, we still pass many = true
-        # so that we can get a list
+        # so that we can get a list view
         serializer = RecipeSerializer(recipes, many=True)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
+        self.assertEqual(res.data, serializer.data)
+
+    def test_view_recipe_detail(self):
+        """Test viewing a recipe detail"""
+
+        recipe = sample_recipe(user=self.user)
+        # add tags to our recipe object
+        recipe.tags.add(sample_tag(user=self.user))
+        # add ingredients to our recipe object
+        recipe.ingredients.add(sample_ingredient(user=self.user))
+
+        # generate the URL
+        url = detail_url(recipe.id)
+        res = self.client.get(url)
+
+        serializer = RecipeDetailSerializer(recipe)
+
         self.assertEqual(res.data, serializer.data)

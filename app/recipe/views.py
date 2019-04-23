@@ -59,6 +59,7 @@ class IngredientViewSet(BaseRecipeAttr):
 class RecipeViewset(viewsets.ModelViewSet):
     """Manage Recipe in the db"""
 
+    # the default action is list
     serializer_class = serializers.RecipeSerializer
     queryset = Recipe.objects.all()
     authentication_classes = (TokenAuthentication, )
@@ -72,3 +73,16 @@ class RecipeViewset(viewsets.ModelViewSet):
         )
 
         return filtered_queryset
+
+    # change a serializer class for a particular request.
+    # This is the function that we wanna use to handle
+    # different actions available in our viewset
+    # e.g., list, or retrieve, etc etc.
+    def get_serializer_class(self):
+        """return appropriate serializer class"""
+
+        # check the action for the current requets
+        if self.action == 'retrieve':
+            return serializers.RecipeDetailSerializer
+
+        return self.serializer_class
